@@ -1,0 +1,51 @@
+lockdown_cycle2<-function(
+##### ##### ##### all time scales are in weeks ##### ##### ##### #####
+  weeks_lock=4, #how many days in each lockdown
+  weeks_free=8, #how many days between lockdowns
+  nlocks=6, #number of total lockdowns 
+  decay_rate=.25, #rate at which virus dwindles
+  doubling_time=1,#rate at which virus infectivity doubles 
+  total_population=1e5, #total population to be considered
+  initial_infect=1 #number of people initial infected
+){
+  total_time<-(weeks_lock+weeks_free)*nlocks 
+  IIR<-initial_infect/total_population ##initial infection rate
+  growth_rate<-log(2)/doubling_time
+  print(IIR)
+#calculate the exponental decay trend   
+  exponential_decay_init<-IIR*exp(-4*((1:weeks_lock)-1))
+#calculate the exponential growth trend 
+  exponential_growth<-exponential_decay_init[4]*exp(growth_rate*(1:weeks_free))
+  #calculate the exponental decay trend   
+  exponential_decay<-exponential_growth[8]*exp(-4*((1:weeks_lock)))
+#combine the decay and growth trends to show a cycle2 of lockdowns  
+  infection_trend<-rep(c(exponential_decay,exponential_growth),times=nlocks)
+#create a dataframe in order to allow for easy plotting   
+  infection_trend_df<-data.frame("week"=1:length(infection_trend),
+                                 "infected"=infection_trend) 
+  return(infection_trend_df)
+}
+
+#load some plotting libraries
+library(ggplot2)
+library(gridExtra)
+#reproduce paper result 
+infection_trend72<-lockdown_cycle2()
+lockdown72<-ggplot(infection_trend72, aes(x=week, y=infected))+geom_line() +
+  # scale_y_continuous(name="Infected Fraction", breaks=c(.0000125,.00001,.0000075,.000005,.0000025))+
+  ggtitle("72 week lockdown cycle2 per paper")
+lockdown72
+
+#test out 4 day doubling time 
+infection_trend4day<-lockdown_cycle2(doubling_time = 4/7)
+
+infection_trend72<-lockdown_cycle2()
+lockdown_4day<-ggplot(infection_trend4day, aes(x=week, y=infected))+geom_line() +
+  ggtitle("72 week lockdown cycle2 with doubling rate of 4 days")
+lockdown_4day
+
+gridExtra::grid.arrange(lockdown72, lockdown_4day)
+
+##### only to create a .pdf #####
+lockdown<-gridExtra::arrangeGrob(lockdown72, lockdown_4day)
+ggsave("~/lockdown_plots.pdf",lockdown)

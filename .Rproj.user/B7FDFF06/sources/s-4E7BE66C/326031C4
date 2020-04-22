@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587568306829.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "326031C4",
+    "lastKnownWriteTime" : 1587584596,
+    "last_content_update" : 1587584596463,
+    "path" : "~/covid19-social-distancing-cycles/app.R",
+    "project_path" : "app.R",
+    "properties" : {
+        "cursorPosition" : "62,31",
+        "scrollLine" : "58",
+        "source_window_id" : ""
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

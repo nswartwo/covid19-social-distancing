@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587568356027.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2998461457",
+    "id" : "898C7C06",
+    "lastKnownWriteTime" : 1587584194,
+    "last_content_update" : 1587584194617,
+    "path" : "~/covid19-social-distancing-cycles/functions.R",
+    "project_path" : "functions.R",
+    "properties" : {
+        "cursorPosition" : "51,4",
+        "scrollLine" : "38",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

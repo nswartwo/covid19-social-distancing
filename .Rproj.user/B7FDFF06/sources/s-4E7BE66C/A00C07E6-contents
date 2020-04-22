@@ -1,0 +1,90 @@
+###make a custom theme
+
+##specify our color palette (based on website and logo)
+cspec_pal<-c("#1c133c", "#0089b8", "#be1622", "#ffffff")
+
+#best for non-line plots
+#recommend using cspec_pal[3] for the fill of a bar/col plot
+cspec_theme <- function() {
+  theme(
+    plot.background = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    panel.background = element_rect(fill = cspec_pal[4]),
+    axis.text = element_text(colour = cspec_pal[1], family = "Impact"),
+    plot.title = element_text(colour = cspec_pal[3], face = "bold", size = 18, vjust = 1, family = "Impact"),
+    axis.title = element_text(colour = cspec_pal[3], face = "bold", size = 13, family = "Impact"),
+    panel.grid.major.x = element_line(colour = cspec_pal[1]),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    strip.text = element_text(family = "Impact", colour = cspec_pal[2]),
+    strip.background = element_rect(fill = cspec_pal[1]),
+    axis.ticks = element_line(colour = cspec_pal[1])
+  )
+}
+### best for line plots 
+### recommended that cspec_pal[1] and cspec_pal[3] be used for data lines (where limited data presented)
+### example: use cspec_pal[3] for basecase and cspec_pal[1] for intervention. 
+cspec_theme2 <- function() {
+  theme(
+    legend.title = element_text(family = "Impact", colour = cspec_pal[2], size = 10),
+    legend.background = element_rect(fill = cspec_pal[4]),
+    legend.key = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    legend.text = element_text(family = "Impact", colour = cspec_pal[2], size = 10),
+    plot.background = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    panel.background = element_rect(fill = cspec_pal[4]),
+    axis.text = element_text(colour = cspec_pal[2], family = "Impact"),
+    plot.title = element_text(colour = cspec_pal[3], face = "bold", size = 18, vjust = 1, family = "Impact"),
+    axis.title = element_text(colour = cspec_pal[3], face = "bold", size = 13, family = "Impact"),
+    panel.grid.major.y = element_line(colour = cspec_pal[2]),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    strip.text = element_text(family = "Impact", colour = cspec_pal[2]),
+    strip.background = element_rect(fill = cspec_pal[2]),
+    axis.ticks = element_line(colour = cspec_pal[4])
+  )
+}
+
+###waffle plot
+
+cspec_theme_waf <- function() {
+  theme(
+    legend.title = element_text(family = "Impact", colour = cspec_pal[2], size = 10), 
+    legend.background = element_rect(fill = cspec_pal[4]),
+    legend.key = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    legend.text = element_text(family = "Impact", colour = cspec_pal[2], size = 10),
+    plot.background = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    axis.text = element_blank(),
+    plot.title = element_text(colour = cspec_pal[3], face = "bold", size = 18, vjust = 1, family = "Impact"),
+    axis.title = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    strip.text = element_text(family = "Impact", colour = cspec_pal[2]),
+    strip.background = element_rect(fill = cspec_pal[1]),
+    axis.ticks = element_blank()
+  )
+}
+
+cspec_theme_shiny <- function() {
+  theme(
+    legend.title = element_text(family = "sans", colour = cspec_pal[2], size = 10),
+    legend.background = element_rect(fill = cspec_pal[4]),
+    legend.key = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    legend.text = element_text(family = "sans", colour = cspec_pal[2], size = 10),
+    plot.background = element_rect(fill = cspec_pal[4], colour = cspec_pal[4]),
+    panel.background = element_rect(fill = cspec_pal[4]),
+    axis.text = element_text(colour = cspec_pal[2], family = "sans"),
+    plot.title = element_text(colour = cspec_pal[3], face = "bold", size = 18, vjust = 1, family = "sans"),
+    axis.title = element_text(colour = cspec_pal[3], face = "bold", size = 13, family = "sans"),
+    panel.grid.major.y = element_line(colour = cspec_pal[1]),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_line(colour = cspec_pal[1]),
+    panel.grid.minor.x = element_blank(),
+    strip.text = element_text(family = "sans", colour = cspec_pal[2]),
+    strip.background = element_rect(fill = cspec_pal[2]),
+    axis.ticks = element_line(colour = cspec_pal[4])
+  )
+}
+
