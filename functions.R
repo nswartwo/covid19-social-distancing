@@ -4,61 +4,78 @@ library(gridExtra)
 library(scales)
 library(dplyr)
 library(reshape2)
-
-#growth function 
-exp_growth<-function(nweeks,IIR,doubling_time){
-  exponential_growth<-rep(0,nweeks)  
-  for (i in 1:length(exponential_growth)){
-    if (i == 1) I<-IIR
-    exponential_growth[i]<-(2/doubling_time)*I
-    I<-exponential_growth[i]
-  }
-  return(exponential_growth)
-} 
-
-##decay_func
-exp_decay<-function(nweeks=4,IIR=1e-5,decay_rate=.25)  {
-  exponential_decay<-rep(0,nweeks)  
-  for (i in 1:length(exponential_decay)){
-    if (i == 1) I<-IIR
-    print(I)
-    exponential_decay[i]<-(decay_rate)*I
-    I<-exponential_decay[i]
-    
-  }
-  return(exponential_decay)
-}
-
-
-lockdown_cycle<-function(
-  ##### ##### ##### all time scales are in weeks ##### ##### ##### #####
-  weeks_lock=4, #how many weeks in each lockdown
-  weeks_free=8, #how many weeks between lockdowns
-  first_lock_weeks=8, #how many weeks of first lockdown
-  nlocks=6, #number of total lockdowns 
-  decay_rate=.25, #rate at which virus dwindles
-  doubling_time=1,#rate at which virus infectivity doubles 
-  total_population=1e5, #total population to be considered
-  initial_infect=1 #number of people initial infected
+library("expm")
+library("msm")
+cycle_function<-function(
+  periods=11, 
+  weeksup=6, 
+  weeksdown=6, 
+  Rup=2, 
+  Rdown=.32, 
+  incubationdays=4, 
+  infectiousdays=4,
+  initialinfrate=.001
 ){
-  total_time<-(weeks_lock+weeks_free)*nlocks 
-  IIR<-initial_infect/total_population ##initial infection rate
+  #define global parameters (temporarily; will be properly scoped after)
+  # periods<<-6;
+  # weeksup<<-6;
+  # weeksdown <<- 6; Rup <<- 2; Rdown <<- .32;
+  # incubationdays <<- 4; infectiousdays <<- 4; initialinfrate<-.001;
+  leng<-weeksup+weeksdown
+  #define the function for E,I matrix basic 
   
-  initial_decay<-exp_decay(first_lock_weeks,IIR,decay_rate = decay_rate)
-
-  infection_trend<-rep(0, total_time)
-  for(i in 1:nlocks){
-    if(i==1) I<-initial_decay[length(initial_decay)]
-    exponential_growth<-exp_growth(weeks_free, IIR=I,doubling_time = doubling_time)
-    exponential_decay<-exp_decay(weeks_lock, exponential_growth[length(exponential_growth)], decay_rate=decay_rate)
-    # exponential_growth<-exp_growth(weeks_free, exponential_decay[weeks_lock], doubling_time = doubling_time)
-    I<-exponential_decay[weeks_lock]
-    infection_trend[((i-1)*(weeks_lock+weeks_free)+(1:(weeks_lock+weeks_free)))]<-c(exponential_growth,exponential_decay)
+  m<-function(R,
+              tx, 
+              incdays, 
+              infdays){
+    s<-MatrixExp(mat=matrix(c(-7/incdays, 7*R/infdays, 
+                              7/incdays, -7/infdays), 
+                            2,2, byrow="TRUE"), t=tx)
+    return(s)
   }
-  infection_trend<-c(IIR,initial_decay,infection_trend)
-  #create a dataframe in order to allow for easy plotting   
-  infection_trend_df<-data.frame("week"=1:length(infection_trend),
-                                 "infected"=infection_trend*total_population) 
-  # View(infection_trend_df)
-  return(infection_trend_df)
+  #matrix for the full period 
+  MFullPeriod <- m(R=Rup, tx=weeksup, incdays = incubationdays, infdays = infectiousdays)%*%
+    m(R=Rdown, tx=weeksdown, incdays = incubationdays, infdays = infectiousdays);
+  #matrix for a partial period 
+  MPartialPeriod<-function(r, 
+                           len, 
+                           Rd, 
+                           Ru, 
+                           weeksd){
+    if(r <(weeksdown/len)){
+      s<-m(R=Rd, tx=r*len, incdays = incubationdays, infdays = infectiousdays)
+    } else{
+      s<-m(R=Ru, tx=(r*len)-weeksd, incdays = incubationdays, infdays = infectiousdays) %*%
+        m(R=Rd, tx=weeksd, incdays = incubationdays, infdays = infectiousdays)
+    }
+    return(s)
+  }
+  
+  #define the time vector
+  a<-seq(0,periods*leng,.1)
+  #define the trend vector
+  trend<-rep(0,length(a))
+  for(i in 1:length(a)){
+    temp<-c(0,1)%*%MPartialPeriod(r=((a[i]/leng)-floor(a[i]/leng)), 
+                                  len=leng, Rd=Rdown, Ru=Rup, weeksd = weeksdown)%*%(MFullPeriod%^%floor(1/leng))
+    trend[i]<-initialinfrate*sum(temp*c(1,1))
+  }
+  
+  #add in t=0; 
+  trend<-c(initialinfrate,trend)
+  # print(length(trend))
+  # print(length(0:(periods*leng)))
+  plot(trend, type="l", col="darkblue", log="y")
+  lines(y=rep(initialinfrate,length(a)),x=a, col="red") #steady moderation line
+  #create a dataframe
+  trend_df<-data.frame("week"=c(0,a), 
+                       "infected"=trend)
+  alpha<-seq(0,2,0.1)
+  utility_df<-data.frame("alpha"=alpha,
+                         "U"=weeksup*periods+((weeksdown*periods)*Rdown^alpha), 
+                         "steadyU"=leng*periods*(sqrt(Rdown)^alpha))
+  results_list<-list(trend_df, 
+                     utility_df)
+  return(results_list)
 }
+
